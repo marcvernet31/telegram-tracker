@@ -4,7 +4,7 @@ from dotenv import load_dotenv
 from telethon import functions                   # type: ignore
 from telethon.sync import TelegramClient, events # type: ignore
 
-from config import conditions, TARGET_CHANNEL_ID, BOT_USER_ID
+from config import conditions, TARGET_CHANNEL_ID, BOT_USER_ID, TEST_TARGET_CHANNEL_ID
 
 load_dotenv()
 
@@ -55,30 +55,30 @@ async def get_topic_title(chat, message):
         topic_title = TOPIC_TITLES.get(topic_id, None)
     return topic_id, topic_title
 
-@client.on(events.NewMessage(chats=TARGET_CHANNEL_ID))
+@client.on(events.NewMessage(chats=[TARGET_CHANNEL_ID, TEST_TARGET_CHANNEL_ID]))
 async def track_messages(event):
-    if event.is_group: 
-        message_id = event.message.id
-        chat = await event.get_chat()
-        sender = await event.get_sender()
 
-        topic_id, topic_title = await get_topic_title(chat, event.message)
+    message_id = event.message.id
+    chat = await event.get_chat()
+    sender = await event.get_sender()
 
-        if(conditions(sender.username, event.text)):
-            # https://t.me/c/2083186778/20/433995
-            
-            url = f"https://t.me/c/{TARGET_CHANNEL_ID}/{topic_id}/{message_id}" if topic_id is not None else ""
+    topic_id, topic_title = await get_topic_title(chat, event.message)
 
-            message = write_message(url, chat.title, event.text, topic_title, sender.username or sender.first_name)
+    if(conditions(sender.username, event.text)):
+        # https://t.me/c/2083186778/20/433995
+        
+        url = f"https://t.me/c/{TARGET_CHANNEL_ID}/{topic_id}/{message_id}" if topic_id is not None else ""
 
-            forward_message = (f"Chat: [{chat.title}] (Chat ID: {chat.id})\n"
-                            f"Sender: {sender.username or sender.first_name}\n"
-                            f"Message: {event.text}\n")
-            forward_message += f"topicId: {topic_id} | topicTitle: {topic_title}\n ({url})"
+        message = write_message(url, chat.title, event.text, topic_title, sender.username or sender.first_name)
 
-            print(message)
-            print("--------------------------------")
-            await client.send_message(BOT_USER_ID, message)
+        forward_message = (f"Chat: [{chat.title}] (Chat ID: {chat.id})\n"
+                        f"Sender: {sender.username or sender.first_name}\n"
+                        f"Message: {event.text}\n")
+        forward_message += f"topicId: {topic_id} | topicTitle: {topic_title}\n ({url})"
+
+        print(message)
+        print("--------------------------------")
+        await client.send_message(BOT_USER_ID, message)
 
 
 TOPIC_TITLES = build_topic_titles()

@@ -1,11 +1,12 @@
 
 BOT_USER_ID = 7789911596
 TARGET_CHANNEL_ID = 2083186778
-TARGET_GROUP_ID = "-4576581744" # Specific formatfor groups id
-
+TEST_TARGET_CHANNEL_ID = 4579383411
+DESTINATION_GROUP_ID = "-4576581744" # Specific formatfor groups id
 
 USERNAMES_TO_TRACK = [
-    "Wizard Of SoHo"
+    "Wizard Of SoHo",
+    "uaiaiaia"
 ]
 WORDS_TO_TRACK = [
     "earl",

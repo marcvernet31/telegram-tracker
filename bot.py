@@ -4,7 +4,8 @@ import telebot # type: ignore
 from datetime import datetime
 from dotenv import load_dotenv
 
-from config import conditions, TARGET_GROUP_ID, BOT_USER_ID
+from config import DESTINATION_GROUP_ID
+
 load_dotenv()
 
 bot = telebot.TeleBot(os.environ.get("BOT_TOKEN"))
@@ -34,10 +35,10 @@ def forward_message(message):
         # Add a delay to avoid rate limiting
         time.sleep(2) 
         if message.content_type == 'text':
-            bot.send_message(TARGET_GROUP_ID,  message.text)
+            bot.send_message(DESTINATION_GROUP_ID,  message.text)
         else:
             # For media messages, forward the content
-            bot.forward_message(TARGET_GROUP_ID, message.chat.id, message.message_id)
+            bot.forward_message(DESTINATION_GROUP_ID, message.chat.id, message.message_id)
         
         bot.reply_to(message, "✅ Message forwarded to the group!")
         
