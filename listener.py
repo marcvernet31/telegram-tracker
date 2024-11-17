@@ -8,11 +8,7 @@ from config import conditions, TARGET_CHANNEL_ID, BOT_USER_ID, TEST_TARGET_CHANN
 
 load_dotenv()
 
-def write_message(url, chat_title, message, topic_title, sender_username):
-    title = f"💸💸💸 [{chat_title}] [{topic_title}] 💸💸💸 \n" if topic_title else f"💸💸💸 [{chat_title}] [topic not found] 💸💸💸 \n"
-    message = f"Message from: {sender_username}\nMessage: {message} \n"
-    url_message = f"✅ {url} \n" if url else "❌ URL not found\n"
-    return title + message + url_message
+TOPIC_TITLES = {}
 
 client = TelegramClient(
     'anon', 
@@ -21,8 +17,15 @@ client = TelegramClient(
 )
 client.start()
 
+def write_message(url, chat_title, message, topic_title, sender_username):
+    title = f"💸💸💸 [{chat_title}] [{topic_title}] 💸💸💸 \n" if topic_title else f"💸💸💸 [{chat_title}] [topic not found] 💸💸💸 \n"
+    message = f"Message from: {sender_username}\nMessage: {message} \n"
+    url_message = f"✅ {url} \n" if url else "❌ URL not found\n"
+    return title + message + url_message
 
-def build_topic_titles():
+def build_topic_titles(client):
+    global TOPIC_TITLES
+
     topics = client(
         functions.channels.GetForumTopicsRequest(
             channel=TARGET_CHANNEL_ID, 
@@ -33,9 +36,7 @@ def build_topic_titles():
         )
     )
 
-    topic_titles = {}
-    for topic in topics.topics: topic_titles[topic.id] = topic.title
-    return topic_titles
+    for topic in topics.topics: TOPIC_TITLES[topic.id] = topic.title
 
 
 def get_topic_id(message):
@@ -81,5 +82,5 @@ async def track_messages(event):
         await client.send_message(BOT_USER_ID, message)
 
 
-TOPIC_TITLES = build_topic_titles()
+build_topic_titles(client)
 client.run_until_disconnected()
